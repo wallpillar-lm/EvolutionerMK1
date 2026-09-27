@@ -45,63 +45,7 @@ PYTHONPATH=src env/bin/python -m evolutioner.cli agent "Inventory ./workspace an
 
 ---
 
-## 🏛️ Model Portfolio
-
-Canonical portfolio names (`config/default.json`, registry spec) map onto
-**whatever tags you actually have installed** via the automatic
-**tag resolver** — size token + variant keyword, both naming schemes:
-
-| Canonical spec name | Local tag (this machine) | Size | Role |
-| :--- | :--- | :--- | :--- |
-| `evolutionermk1-1.5B` | `wallpillar-lm/evolu-general-1.5B` | 1.5B | Ultra-fast MCTS rollouts |
-| `evolutionermk1-2B` | `wallpillar-lm/evolu-general-2B` | 2B | Instruction / structured tasks |
-| `evolutionermk1-3B` | `wallpillar-lm/evolu-general-3B` | 3B | **Primary reasoner (default)** |
-| `evolutionermk1-5B` | `wallpillar-lm/evolu-general-5B` | 5B | Deep reasoning |
-| `evolutionermk1-coder-3B` | `wallpillar-lm/evolu-coder-3B` | 3B | Code-specialized reasoner |
-| `evolutionermk1-uncens-3B` | `wallpillar-lm/evolu-uncens-3B` | 3B | Uncensored variant |
-| **`EvoluMK1:vision-3B`** | `EvoluMK1:vision-3B` (qwen2.5vl:3b) | 3B | **Vision** — image understanding |
-| **`EvoluMK1:agentic-4B`** | `EvoluMK1:agentic-4B` (qwen3:4b) | 4B | **Agentic** — native tool-calling + thinking |
-
-The models are **local builds, not published** (no registry.ollama.ai / HF
-copies). Import your own GGUFs with `ollama create` (launcher menu 8 → 2);
-`get.sh` recreates the integrated build automatically.
-
-**Integrated model** — the methodology (MCTS-style `<think>` branching,
-` ```python ` verification blocks, self-correction) is baked into a Modelfile:
-
-```bash
-ollama create EvoluMK1:integrated-3B -f Modelfile
-```
-
-> **Ollama store location:** this machine's systemd unit runs Ollama as the
-> `ollama` user with `OLLAMA_MODELS=/var/lib/ollama`. The store was previously
-> wiped by a restart-path mismatch (manual serve vs systemd). Pick **one**
-> location and stick to it — see `docs/` for the migration commands.
-
----
-
-## 📐 Architecture
-
-```
-                     ┌──────────────────────────────────────────┐
-                     │          Evolutioner MK1 Harness         │
-                     └────────────────────┬─────────────────────┘
-                                          │
-                 ┌────────────────────────┴───────────────────────┐
-                 ▼                                                ▼
-   ┌───────────────────────────┐                  ┌───────────────────────────┐
-   │     Local CPU Harness     │                  │   Cloud GPU (phase 2)     │
-   │   (i5-4440 / 8GB RAM)     │                  │   LoRA distillation       │
-   ├───────────────────────────┤                  ├───────────────────────────┤
-   │ • Ollama / llama.cpp GGUF │                  │ • Unsloth + QLoRA         │
-   │ • SymPy / AST Verifier    │                  │ • vLLM rollout generation │
-   │ • MCTS Search Control     │                  │ • GGUF re-quantization    │
-   │ • Virtual Context (RAG)   │                  └───────────────────────────┘
-   │ • Tool-using agents       │
-   └───────────────────────────┘
-```
-
-### The 4 Core Pillars
+#### The 4 Core Pillars
 
 1. **Quantized Inference Engine** — tiered Ollama portfolio (1.5B rollouts +
    3B/5B reasoner), AVX2 CPU, no GPU required.
@@ -138,13 +82,6 @@ PYTHONPATH=src python -m evolutioner.cli selftest    # mock pipeline check
 
 ---
 
-## 🏋️ Fine-Tuning Pipeline (Cloud / GPU Only)
-
-Local execution is inference + MCTS search only. Training runs on GPU nodes —
-pipeline and hardware verdict in **`docs/DISTILL.md`** (trajectory capture →
-SFT dataset → QLoRA → re-quantize → `ollama create`).
-
----
 
 ## 📁 Repository Structure
 
