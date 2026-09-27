@@ -59,15 +59,6 @@ PYTHONPATH=src env/bin/python -m evolutioner.cli agent "Inventory ./workspace an
 
 ---
 
-## 💻 Hardware & Operating Limits
-
-| Constraint | Local CPU Runtime (Haswell / AVX2) | Cloud GPU (phase 2) |
-| :--- | :--- | :--- |
-| **CPU** | Intel Core i5-4440 (4c/4t) | NVIDIA T4 / A10G |
-| **Memory** | 8 GB RAM (~1.5–4.5 GB peak inference) | 16 GB+ VRAM |
-| **Token speed** | ~2–15 tok/s depending on tier | 100+ tok/s |
-
----
 
 ## 🛠️ Manual Setup (if not using get.sh)
 
